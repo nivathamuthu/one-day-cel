@@ -1,0 +1,25 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repository.
+# Secrets marked sync: false are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: birthday-moments-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_CA_CERT
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: PUBLIC_BASE
+        sync: false

@@ -1,8 +1,10 @@
 import { Howl } from 'howler'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { birthdayLabel, isBirthdayToday, nextBirthday, parseBirthday } from '../../lib/dates.js'
+import { SURPRISE_ID, requestJson } from '../../lib/api.js'
 import { decodeDraft } from '../../lib/codec.js'
 import { themeById } from '../../lib/themes.js'
+import { useSlow } from '../../lib/useSlow.js'
 import BalloonScene from './BalloonScene.jsx'
 import CakeScene from './CakeScene.jsx'
 import GiftScene from './GiftScene.jsx'
@@ -18,12 +20,16 @@ function surpriseId() {
 async function readDraft() {
   const id = surpriseId()
   if (id) {
+    if (!SURPRISE_ID.test(id)) return { error: 'This birthday link is not complete. Ask them to send it again.' }
     try {
-      const response = await fetch(`/api/surprises/${id}`)
-      if (!response.ok) return { error: 'This birthday link could not be opened. Ask them to send it again.' }
-      return { key: id, data: normalize(await response.json()) }
-    } catch {
-      return { error: 'This birthday link could not be opened. Check the connection and try again.' }
+      const { status, ok, body } = await requestJson(`/api/surprises/${id}`)
+      if (status === 404) return { error: 'This surprise could not be found. Ask them to send the link again.' }
+      if (!ok || !body || typeof body !== 'object') {
+        return { error: 'The birthday server is having trouble right now.', retryable: status !== 400 }
+      }
+      return { key: id, data: normalize(body) }
+    } catch (error) {
+      return { error: error.message, retryable: true }
     }
   }
   try {
@@ -68,6 +74,8 @@ function useCountdown(birthday) {
 
 export default function Viewer() {
   const [payload, setPayload] = useState({ loading: true })
+  const [attempt, setAttempt] = useState(0)
+  const slow = useSlow(Boolean(payload.loading), 6000)
 
   useEffect(() => {
     let cancel = false
@@ -83,7 +91,7 @@ export default function Viewer() {
       cancel = true
       window.removeEventListener('hashchange', sync)
     }
-  }, [])
+  }, [attempt])
 
   if (payload.loading) {
     return (
@@ -91,6 +99,7 @@ export default function Viewer() {
         <section className="scene">
           <p className="big-emoji" aria-hidden="true">🎁</p>
           <h1>Opening the surprise…</h1>
+          {slow && <p>Waking up the birthday server. The first visit can take up to a minute.</p>}
         </section>
       </main>
     )
@@ -101,9 +110,15 @@ export default function Viewer() {
       <main className="viewer missing">
         <section className="scene">
           <p className="big-emoji" aria-hidden="true">🎈</p>
-          <h1>This surprise floated away</h1>
+          <h1>{payload.retryable ? 'The surprise is taking a moment' : 'This surprise floated away'}</h1>
           <p>{payload.error}</p>
-          <a className="btn btn-primary" href="/">Make a birthday surprise</a>
+          {payload.retryable ? (
+            <button type="button" className="btn btn-primary" onClick={() => setAttempt((count) => count + 1)}>
+              Try again
+            </button>
+          ) : (
+            <a className="btn btn-primary" href="/">Make a birthday surprise</a>
+          )}
         </section>
       </main>
     )

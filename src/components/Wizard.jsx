@@ -4,6 +4,7 @@ import { compressImage } from '../lib/photos.js'
 import { samplePhotos } from '../lib/sample.js'
 import { MAX_PHOTOS, MIN_REASONS, publishDraft, whatsAppUrl } from '../lib/share.js'
 import { THEMES, themeById } from '../lib/themes.js'
+import { useSlow } from '../lib/useSlow.js'
 import { BalloonDoodle, CakeDoodle, CameraDoodle, EnvelopeDoodle, GiftDoodle, HeartDoodle, StarDoodle } from './Doodles.jsx'
 import FairyLights from './FairyLights.jsx'
 
@@ -118,6 +119,7 @@ export default function Wizard({ onExit }) {
   const [copied, setCopied] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [link, setLink] = useState('')
+  const savingSlow = useSlow(busy && step === READY - 1, 6000)
 
   useEffect(() => {
     try {
@@ -566,7 +568,7 @@ export default function Wizard({ onExit }) {
                   Preview it yourself
                 </a>
                 <textarea className="link-box" readOnly rows={2} value={link} aria-label="Share link" onFocus={(event) => event.target.select()} />
-                <p className="notice">This short link opens on a phone, with the photos included. Keep this computer on while they view it.</p>
+                <p className="notice">This short link opens on any phone, with the photos included. The surprise is saved online, so you can close this page.</p>
                 <button
                   type="button"
                   className="text-btn"
@@ -584,6 +586,9 @@ export default function Wizard({ onExit }) {
             </div>
           )}
 
+          {savingSlow && !error && (
+            <p className="notice" role="status">Waking up the birthday server. The first save can take up to a minute.</p>
+          )}
           {error && <p className="error" role="alert">{error}</p>}
         </div>
 

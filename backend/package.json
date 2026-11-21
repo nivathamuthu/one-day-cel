@@ -1,0 +1,21 @@
+{
+  "name": "birthday-moments-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "REST API that stores Birthday Moments surprises in Supabase PostgreSQL.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --env-file-if-exists=.env --watch src/server.js",
+    "migrate": "node --env-file-if-exists=.env scripts/migrate-json.js",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "pg": "^8.16.0"
+  }
+}

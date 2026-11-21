@@ -5,14 +5,13 @@ import { defineConfig } from 'vite'
 import { surpriseMiddleware } from './scripts/surprise-store.mjs'
 
 function surpriseStore() {
-  const api = surpriseMiddleware()
   return {
     name: 'surprise-store',
-    configureServer(server) {
-      server.middlewares.use(api)
+    async configureServer(server) {
+      server.middlewares.use(await surpriseMiddleware())
     },
-    configurePreviewServer(server) {
-      server.middlewares.use(api)
+    async configurePreviewServer(server) {
+      server.middlewares.use(await surpriseMiddleware())
     },
   }
 }
