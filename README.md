@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🎂 Birthday Moments
 
 A shareable birthday surprise. The sender fills a short 5-step builder, gets one link, and sends it on WhatsApp or Instagram. The birthday person opens it and plays through a series of small, tappable scenes: unwrap, light the cake, pop balloons, browse photos, read a letter.
@@ -186,3 +187,6 @@ Libraries in use: React, Vite, `canvas-confetti`, `swiper`, `gsap`, `howler`.
 ## 📄 License
 
 MIT
+=======
+# one-day-cel
+>>>>>>> 867f23a6a8e57119e862d8ecd956703ca27a6f46
